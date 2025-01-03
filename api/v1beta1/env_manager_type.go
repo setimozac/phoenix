@@ -1,8 +1,6 @@
 package v1beta1
 
 import (
-	k8sbatch "k8s.io/api/batch/v1"
-	k8score "k8s.io/api/core/v1"
 	apimeta "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
