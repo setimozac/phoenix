@@ -14,8 +14,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 )
 
-var scheme = runtime.NewScheme()
-var setupLog = ctl.Log.WithName("manager-setup")
+var (
+	scheme = runtime.NewScheme()
+	setupLog = ctl.Log.WithName("manager-setup")
+)
+
 
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
