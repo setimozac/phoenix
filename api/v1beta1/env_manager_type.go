@@ -1,7 +1,10 @@
 package v1beta1
 
 import (
+	"fmt"
+
 	apimeta "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 )
 
 type EnvManagerSpec struct {
@@ -30,3 +33,152 @@ type EnvManagerList struct {
 func init() {
 	SchemeBuilder.Register(&EnvManager{}, &EnvManagerList{})
 }
+
+func (in *EnvManager) DeepCopyObject() runtime.Object {
+	if in == nil {
+		return nil
+	}
+	newObj := new(EnvManager)
+	*newObj = *in
+	// primitive types don't require deep copy
+	newObj.Spec = EnvManagerSpec{
+		Enable: in.Spec.Enable,
+		MinReplica: in.Spec.MinReplica,
+	}
+	newObj.Status = EnvManagerStatus{
+		ControlledBy: in.Status.ControlledBy,
+	}
+
+	DeepCopyTypeMeta(&in.TypeMeta, &newObj.TypeMeta)
+	DeepCopyObjectMeta(&in.ObjectMeta, &newObj.ObjectMeta)
+
+	return newObj
+}
+
+func (in *EnvManagerList) DeepCopyObject() runtime.Object {
+	if in == nil {
+		return nil
+	}
+	
+	newObj := new(EnvManagerList)
+	*newObj = *in
+	newObj.TypeMeta = in.TypeMeta
+	
+	return newObj
+}
+
+func DeepCopyTypeMeta(in *apimeta.TypeMeta, out *apimeta.TypeMeta) {
+	*out = *in
+
+}
+
+func DeepCopyObjectMeta(in *apimeta.ObjectMeta, out *apimeta.ObjectMeta) {
+	*out = *in
+
+	// Deepcopy CreationTimestamp
+	
+	in.CreationTimestamp.DeepCopyInto(out.DeletionTimestamp )
+	fmt.Println("CreationTimestamp", &out.CreationTimestamp, &in.CreationTimestamp)
+	
+	// Deepcopy DeletionTimestamp
+	if in.DeletionTimestamp != nil {
+		out.DeletionTimestamp = in.DeletionTimestamp.DeepCopy()
+		fmt.Println("DeletionTimestamp ", &out.DeletionTimestamp, &in.DeletionTimestamp)
+	}
+
+	// Deepcopy Labels
+	if in.Labels != nil {
+		in, out := &in.Labels, &out.Labels
+		*out = make(map[string]string, len(*in))
+		for key, val := range *in {
+			(*out)[key] = val
+		}
+		fmt.Println("Labels ", &in, &out)
+	}
+
+
+	// Deepcopy Annotations
+	if in.Annotations != nil {
+		in, out := &in.Annotations, &out.Annotations
+		*out = make(map[string]string, len(*in))
+		for key, val := range *in {
+			(*out)[key] = val
+		}
+
+	}
+
+	// Deepcopy OwnerReferences
+	if in.OwnerReferences != nil {
+		in, out := &in.OwnerReferences, &out.OwnerReferences
+		*out = make([]apimeta.OwnerReference, len(*in))
+
+		for i := range *in {
+			(*out)[i] = func(or *apimeta.OwnerReference) (apimeta.OwnerReference){
+				orOut := new(apimeta.OwnerReference)
+				*orOut = *or
+
+				if or.Controller != nil {
+					or, orOut := &or.Controller, &orOut.Controller
+					*orOut = new(bool)
+					**orOut = **or
+				}
+
+				if or.BlockOwnerDeletion != nil {
+					or, orOut := &or.BlockOwnerDeletion, &orOut.BlockOwnerDeletion
+					*orOut = new(bool)
+					**orOut = **or
+				}
+
+				return *orOut
+			}(&(*in)[i])
+		}
+
+	}
+
+	// Deepcopy Finalizers
+	if in.Finalizers != nil {
+		in, out := &in.Finalizers, &out.Finalizers
+		*out = make([]string, len(*in))
+		copy(*out, *in)
+
+	}
+
+	// Deepcopy ManagedFields
+	if in.ManagedFields != nil {
+		in, out := &in.ManagedFields, &out.ManagedFields
+		*out = make([]apimeta.ManagedFieldsEntry, len(*in))
+		for i := range *in {
+			(*out)[i] = func(mfi *apimeta.ManagedFieldsEntry) (apimeta.ManagedFieldsEntry){
+				mfiOut := new(apimeta.ManagedFieldsEntry)
+				*mfiOut = *mfi
+
+				if mfi.Time != nil {
+					*mfiOut.Time = *mfi.Time.DeepCopy()
+				}
+
+				if mfi.FieldsV1 != nil {
+					mfi, mfiOut := &mfi.FieldsV1, &mfiOut.FieldsV1
+					*mfiOut = new(apimeta.FieldsV1)
+					**mfiOut = **mfi
+					if (*mfi).Raw != nil {
+						mfi, mfiOut := &(*mfi).Raw, &(*mfiOut).Raw
+						*mfiOut = make([]byte, len((*mfi)))
+						copy(*mfiOut, *mfi)
+					}				
+				}
+
+				return *mfiOut
+			}(&(*in)[i])
+		}
+
+	}
+
+	// Deepcopy DeletionGracePeriodSeconds
+	if in.DeletionGracePeriodSeconds != nil {
+		in, out := &in.DeletionGracePeriodSeconds, &out.DeletionGracePeriodSeconds
+		*out = new(int64)
+		**out = **in
+	}
+	
+}
+
