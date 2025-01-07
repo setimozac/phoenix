@@ -5,10 +5,13 @@ import (
 	"flag"
 	"os"
 
+	phoenixv1beta1 "github.com/setimozac/phoenix/api/v1beta1"
+	"github.com/setimozac/phoenix/internal/controllers"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	ctl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
@@ -22,6 +25,8 @@ var (
 
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
+
+	utilruntime.Must(phoenixv1beta1.SchemeBuilder.AddToScheme(scheme))
 }
 
 func main() {
@@ -46,11 +51,20 @@ func main() {
 	}
 	tlsOpts = append(tlsOpts, http1)
 
+	// namespace restrictions for manager
+
+	namespaces := []string{"default"} // list of namespaces
+	defaultNameSpaces := make(map[string]cache.Config)
+	for _, namespace := range namespaces {
+		defaultNameSpaces[namespace] = cache.Config{}
+	}
+
 	// initializing a new webhook
 	webhookServer := webhook.NewServer(webhook.Options{TLSOpts: tlsOpts})
 
 	mgr, err := ctl.NewManager(ctl.GetConfigOrDie(), ctl.Options{
 		Scheme: scheme,
+		Cache: cache.Options{DefaultNamespaces: defaultNameSpaces},
 		WebhookServer: webhookServer,
 		PprofBindAddress: healthProbe,
 		LeaderElection: leaderElection,
@@ -60,6 +74,14 @@ func main() {
 		setupLog.Error(err, "unable to start the manager")
 	}
 
+	if err := (&controllers.EnvManagerReconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "EnvManager")
+		os.Exit(1)
+	}
+
 	if err := mgr.AddHealthzCheck("health_check", healthz.Ping); err != nil {
 		setupLog.Error(err, "unable to setup the healt_check")
 		os.Exit(1)
@@ -67,13 +89,13 @@ func main() {
 
 	if err := mgr.AddReadyzCheck("readyz", healthz.Ping); err != nil {
 		setupLog.Error(err, "unable to setup the readyz")
-		os.Exit(2)
+		os.Exit(1)
 	}
 
 	setupLog.Info("starting the manager...")
 	if err := mgr.Start(ctl.SetupSignalHandler()); err != nil {
 		setupLog.Error(err, "unable to start the manager")
-		os.Exit(3)
+		os.Exit(1)
 	}
 
 }

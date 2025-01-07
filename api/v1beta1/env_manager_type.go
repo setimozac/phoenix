@@ -8,6 +8,7 @@ import (
 type EnvManagerSpec struct {
 	Enable     *bool  `json:"enable"`
 	MinReplica *int32 `json:"minReplica,omitempty"`
+	Name       string `json:"name"`
 }
 
 type EnvManagerStatus struct {
@@ -24,7 +25,7 @@ type EnvManager struct {
 
 type EnvManagerList struct {
 	apimeta.TypeMeta   `json:",inline"`
-	apimeta.ObjectMeta `json:"metadata,omitempty"`
+	apimeta.ListMeta `json:"metadata,omitempty"`
 	Items              []EnvManager `json:"items"`
 }
 
@@ -68,6 +69,7 @@ func (in *EnvManagerSpec) DeepCopyInto(out *EnvManagerSpec) {
 		*out = new(int32)
 		*out = *in
 	}
+
 }
 
 func (in *EnvManagerStatus) DeepCopyInto(out *EnvManagerStatus) {
@@ -84,7 +86,7 @@ func (in *EnvManagerList) DeepCopyObject() runtime.Object {
 	*out = *in
 
 	out.TypeMeta = in.TypeMeta
-	in.ObjectMeta.DeepCopyInto(&out.ObjectMeta)
+	in.ListMeta.DeepCopyInto(&out.ListMeta)
 
 	if in.Items != nil {
 		in, out := &in.Items, &out.Items
@@ -96,6 +98,22 @@ func (in *EnvManagerList) DeepCopyObject() runtime.Object {
 	}
 
 	return out
+}
+
+func (in *EnvManagerList) GetContinue() string{
+	return in.ListMeta.Continue
+}
+
+func (in *EnvManagerList) SetContinue(c string) {
+	in.Continue = c
+}
+
+func (in *EnvManagerList) GetRemainingItemCount() *int64{
+	return in.ListMeta.RemainingItemCount
+}
+
+func (in *EnvManagerList) SetRemainingItemCount(c *int64) {
+	in.RemainingItemCount = c
 }
 
 // func DeepCopyTypeMeta(in *apimeta.TypeMeta, out *apimeta.TypeMeta) {
