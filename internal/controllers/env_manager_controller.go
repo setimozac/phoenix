@@ -47,7 +47,7 @@ func (r *EnvManagerReconciler) Reconcile(ctx context.Context, req ctl.Request) (
 		Namespace: req.Namespace,
 	}
 	if err := r.Get(ctx, deploymentName, &deployment); err != nil {
-		log.Error(err, "unable to get the eployment")
+		log.Error(err, "unable to get the deployment")
 		return ctl.Result{}, client.IgnoreNotFound(err)
 	}
 
@@ -55,7 +55,6 @@ func (r *EnvManagerReconciler) Reconcile(ctx context.Context, req ctl.Request) (
 }
 
 func (r *EnvManagerReconciler) SetupWithManager(mgr ctl.Manager) error {
-	// if err := mgr.GetFieldIndexer().IndexField(context.Background(), &corev1.Pod{}, ".metadata.:")
 	if err := mgr.GetFieldIndexer().IndexField(context.Background(), &phoenixv1beta1.EnvManager{}, "spec.enable", func(obj client.Object) []string{
 		envM := obj.(*phoenixv1beta1.EnvManager)
 		return []string{envM.Spec.Name}
