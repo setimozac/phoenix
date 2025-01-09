@@ -30,3 +30,7 @@ docker build -t phoenix-operator:latest .
 kind load docker-image phoenix-operator:latest --name phoenix-dev
 
 
+# docker system prune -af
+# docker volume prune -f
+
+
