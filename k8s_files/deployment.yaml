@@ -1,0 +1,66 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    operator-controller: phoenix-envmanager
+    app.kubernetes.io/name: phoenix
+  name: operators
+---
+apiVersion: v1
+kind: Deployment
+metadata:
+  name: phoenix-envmanager
+  namespace: operators
+  labels:
+    operator-controller: phoenix-envmanager
+    app.kubernetes.io/name: phoenix
+spec:
+  selector:
+    matchLabels:
+      operator-controller: phoenix-envmanager
+  replicas: 1
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: manager
+      labels:
+        operator-controller: phoenix-envmanager
+    spec:
+      securityContext:
+        runAsNonRoot: true
+      containers:
+      - command:
+        - /env-manager
+        image: phoenix-operator:lates
+        name: manager
+        imagePullPolicy: Never
+        securityContext:
+          allowPrivilageEscalation: false
+          capabilities:
+            drop:
+            - "ALL"
+        livenessProbe:
+          httpGet:
+            path: /health_check
+            port: 8081
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8081
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        resources:
+          limits:
+            cpu: 500m
+            memory: 128Mi
+          requests:
+            cpu: 10m
+            memory: 64Mi
+      serviceAccountName: phoenix-operator-serviceaccount
+      terminationGracePeriodSeconds: 10
+        
+
+
+      
