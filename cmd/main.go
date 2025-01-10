@@ -68,7 +68,7 @@ func main() {
 		WebhookServer: webhookServer,
 		PprofBindAddress: healthProbe,
 		LeaderElection: leaderElection,
-		LeaderElectionID: "envmanager.setimozac/phoenix",
+		LeaderElectionID: "envmanager.setimozac.phoenix",
 	})
 	if err != nil {
 		setupLog.Error(err, "unable to start the manager")

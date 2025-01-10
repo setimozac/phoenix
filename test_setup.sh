@@ -2,11 +2,10 @@
 
 # exec > ~/instalation_log.log 2>&1
 cd ~/
-sudo yum -y install git
+#sudo yum -y install git
 export CURRENT_USER=$(whoami)
 sudo yum -y install docker
 sudo usermod -a -G docker $CURRENT_USER
-newgrp docker
 sudo systemctl enable docker.service
 sudo systemctl start docker.service
 echo "Docker installation is done."
@@ -23,8 +22,15 @@ echo "create cluster"
 kind create cluster --name phoenix-dev
 kubectl cluster-info --context kind-operator-dev
 
+newgrp docker
 
-docker build -t phoenix-operator:latest .
-kind load docker-image phoenix-operator:latest --name phoenix-dev
+
+
+#docker build -t phoenix-operator:latest .
+#kind load docker-image phoenix-operator:latest --name phoenix-dev
+
+
+# docker system prune -af
+# docker volume prune -f
 
 
