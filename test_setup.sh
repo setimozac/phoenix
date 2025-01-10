@@ -6,7 +6,8 @@ cd ~/
 export CURRENT_USER=$(whoami)
 sudo yum -y install docker
 sudo usermod -a -G docker $CURRENT_USER
-
+sudo systemctl enable docker.service
+sudo systemctl start docker.service
 echo "Docker installation is done."
 echo "Installing Go"
 sudo yum -y install go
@@ -22,12 +23,11 @@ kind create cluster --name phoenix-dev
 kubectl cluster-info --context kind-operator-dev
 
 newgrp docker
-sudo systemctl enable docker.service
-sudo systemctl start docker.service
 
 
-docker build -t phoenix-operator:latest .
-kind load docker-image phoenix-operator:latest --name phoenix-dev
+
+#docker build -t phoenix-operator:latest .
+#kind load docker-image phoenix-operator:latest --name phoenix-dev
 
 
 # docker system prune -af
