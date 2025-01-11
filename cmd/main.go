@@ -53,7 +53,7 @@ func main() {
 
 	// namespace restrictions for manager
 
-	namespaces := []string{"default"} // list of namespaces
+	namespaces := []string{""} // list of namespaces
 	defaultNameSpaces := make(map[string]cache.Config)
 	for _, namespace := range namespaces {
 		defaultNameSpaces[namespace] = cache.Config{}
@@ -67,7 +67,6 @@ func main() {
 		Cache: cache.Options{DefaultNamespaces: defaultNameSpaces},
 		WebhookServer: webhookServer,
 		HealthProbeBindAddress: healthProbe,
-		PprofBindAddress: healthProbe,
 		LeaderElection: leaderElection,
 		LeaderElectionID: "envmanager.setimozac.phoenix",
 	})
