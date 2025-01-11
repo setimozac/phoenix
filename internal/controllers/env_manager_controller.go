@@ -8,8 +8,8 @@ import (
 	// corev1 "k8s.io/api/core/v1"
 	// apimeta "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/types"
-	appsv1 "k8s.io/api/apps/v1"
+	// "k8s.io/apimachinery/pkg/types"
+	// appsv1 "k8s.io/api/apps/v1"
 	// ref "k8s.io/client-go/tools/reference"
 	ctl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -41,21 +41,21 @@ func (r *EnvManagerReconciler) Reconcile(ctx context.Context, req ctl.Request) (
 	}
 	log.V(1).Info("testing the controller get function", "envManagerList", envManagerList)
 
-	var deployment appsv1.Deployment
-	deploymentName := types.NamespacedName{
-		Name: envManager.Spec.Name,
-		Namespace: req.Namespace,
-	}
-	if err := r.Get(ctx, deploymentName, &deployment); err != nil {
-		log.Error(err, "unable to get the deployment")
-		return ctl.Result{}, client.IgnoreNotFound(err)
-	}
+	// var deployment appsv1.Deployment
+	// deploymentName := types.NamespacedName{
+	// 	Name: envManager.Spec.Name,
+	// 	Namespace: req.Namespace,
+	// }
+	// if err := r.Get(ctx, deploymentName, &deployment); err != nil {
+	// 	log.Error(err, "unable to get the deployment")
+	// 	return ctl.Result{}, client.IgnoreNotFound(err)
+	// }
 
 	return ctl.Result{}, nil
 }
 
 func (r *EnvManagerReconciler) SetupWithManager(mgr ctl.Manager) error {
-	if err := mgr.GetFieldIndexer().IndexField(context.Background(), &phoenixv1beta1.EnvManager{}, "spec.enable", func(obj client.Object) []string{
+	if err := mgr.GetFieldIndexer().IndexField(context.Background(), &phoenixv1beta1.EnvManager{}, "spec.name", func(obj client.Object) []string{
 		envM := obj.(*phoenixv1beta1.EnvManager)
 		return []string{envM.Spec.Name}
 	}); err != nil {
