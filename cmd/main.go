@@ -66,6 +66,7 @@ func main() {
 		Scheme: scheme,
 		Cache: cache.Options{DefaultNamespaces: defaultNameSpaces},
 		WebhookServer: webhookServer,
+		HealthProbeBindAddress: healthProbe,
 		PprofBindAddress: healthProbe,
 		LeaderElection: leaderElection,
 		LeaderElectionID: "envmanager.setimozac.phoenix",

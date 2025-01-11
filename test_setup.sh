@@ -2,7 +2,6 @@
 
 # exec > ~/instalation_log.log 2>&1
 cd ~/
-#sudo yum -y install git
 export CURRENT_USER=$(whoami)
 sudo yum -y install docker
 sudo usermod -a -G docker $CURRENT_USER
@@ -19,17 +18,19 @@ echo "install kind"
 go install sigs.k8s.io/kind@v0.26.0
 sudo cp ./go/bin/kind /usr/local/bin
 echo "create cluster"
-kind create cluster --name phoenix-dev
-kubectl cluster-info --context kind-operator-dev
 
-newgrp docker
+
+newgrp docker <<EOF
+kind create cluster --name phoenix-dev
+kubectl cluster-info --context kind-phoenix-dev
+EOF
 
 
 
 #docker build -t phoenix-operator:latest .
 #kind load docker-image phoenix-operator:latest --name phoenix-dev
 
-
+# sudo yum -y install git
 # docker system prune -af
 # docker volume prune -f
 

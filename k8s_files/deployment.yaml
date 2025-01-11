@@ -23,7 +23,7 @@ spec:
       containers:
       - command:
         - /env-manager
-        image: phoenix-operator:lates
+        image: phoenix-operator:latest
         name: manager
         imagePullPolicy: Never
         securityContext:
