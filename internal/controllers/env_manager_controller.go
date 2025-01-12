@@ -54,7 +54,23 @@ func (r *EnvManagerReconciler) Reconcile(ctx context.Context, req ctl.Request) (
 	}
 	log.V(1).Info("testing the deployment get function", "deployment", deployment)
 
-	return ctl.Result{}, nil
+	log.V(1).Info("<------ Updating the deployment ----->")
+	desiredReplicas := int32(*envManager.Spec.MinReplica)
+	if deployment.Spec.Replicas != nil && deployment.Spec.Replicas == &desiredReplicas {
+		log.V(1).Info("The deployment replicas matches the CR", "deployment.repicas:", deployment.Spec.Replicas, "CR.MinReplica", desiredReplicas)
+		return ctl.Result{}, nil
+	}
+
+	// update the deployment
+	deployment.Spec.Replicas = &desiredReplicas
+	err := r.Client.Update(ctx, &deployment)
+	if err != nil {
+		log.Error(err, "failed to update the deployment")
+		return ctl.Result{}, nil
+	}
+
+	// requeue to ensure the update was applied
+	return ctl.Result{Requeue: true}, nil
 }
 
 func (r *EnvManagerReconciler) SetupWithManager(mgr ctl.Manager) error {
