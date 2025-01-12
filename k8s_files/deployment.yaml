@@ -31,18 +31,18 @@ spec:
           capabilities:
             drop:
             - "ALL"
-        livenessProbe:
-          httpGet:
-            path: /health_check
-            port: 8081
-          initialDelaySeconds: 50
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /readyz
-            port: 8081
-          initialDelaySeconds: 50
-          periodSeconds: 20
+        # livenessProbe:
+        #   httpGet:
+        #     path: /health_check
+        #     port: 8081
+        #   initialDelaySeconds: 50
+        #   periodSeconds: 10
+        # readinessProbe:
+        #   httpGet:
+        #     path: /readyz
+        #     port: 8081
+        #   initialDelaySeconds: 50
+        #   periodSeconds: 20
         resources:
           limits:
             cpu: 500m
