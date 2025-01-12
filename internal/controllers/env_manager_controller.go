@@ -50,6 +50,7 @@ func (r *EnvManagerReconciler) Reconcile(ctx context.Context, req ctl.Request) (
 		log.Error(err, "unable to get the deployment")
 		return ctl.Result{}, client.IgnoreNotFound(err)
 	}
+	log.V(1).Info("testing the deployment get function", "deployment", deployment)
 
 	return ctl.Result{}, nil
 }
