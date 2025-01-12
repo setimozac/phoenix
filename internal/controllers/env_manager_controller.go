@@ -14,6 +14,8 @@ import (
 	ctl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
+	"sigs.k8s.io/controller-runtime/pkg/handler"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
 type EnvManagerReconciler struct{
@@ -63,6 +65,41 @@ func (r *EnvManagerReconciler) SetupWithManager(mgr ctl.Manager) error {
 		log.Log.V(1).Error(err, err.Error())
 		return err
 	}
-	return ctl.NewControllerManagedBy(mgr).For(&phoenixv1beta1.EnvManager{}).Named("envManager").Complete(r)
+	// var deployment appsv1.Deployment
+
+	return ctl.NewControllerManagedBy(mgr).
+	For(&phoenixv1beta1.EnvManager{}).
+	Watches(
+		&appsv1.Deployment{},
+		handler.EnqueueRequestsFromMapFunc(func(ctx context.Context, obj client.Object) []reconcile.Request {
+			d, ok := obj.(*appsv1.Deployment)
+			if !ok {
+				log.Log.V(1).Info("getting obj in the Wacher in SetupWithManager()")
+				return nil
+			}
+
+			var envManagerList phoenixv1beta1.EnvManagerList
+			if err := r.List(ctx, &envManagerList, client.MatchingFields{"spec.name": d.Name}); err != nil {
+				log.Log.Error(err, "unable to list the envmanagers")
+
+				return nil
+			}
+
+			var requests []reconcile.Request
+			if len(envManagerList.Items) > 0 {
+				for _, i := range envManagerList.Items {
+					requests = append(requests, reconcile.Request{
+						NamespacedName: client.ObjectKey{
+							Namespace: i.Namespace,
+							Name: i.Name,
+						},
+					})
+				}
+			}
+			return requests
+		}),
+	).
+	Named("envManager").
+	Complete(r)
 	
 }
