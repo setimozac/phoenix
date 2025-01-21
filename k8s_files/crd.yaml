@@ -21,10 +21,19 @@ spec:
           spec:
             type: object
             properties:
-              enable:
+              enabled:
                 type: boolean
+              uiEnabled:
+                type: boolean
+                default: false
               minReplica:
                 type: integer
               name:
                 type: string
+              lastUpdate:
+                type: integer
+            required:
+              - enabled
+              - minReplica
+              - name
 
