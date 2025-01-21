@@ -6,9 +6,11 @@ import (
 )
 
 type EnvManagerSpec struct {
-	Enable     *bool  `json:"enable"`
+	Enabled     *bool  `json:"enabled"`
+	UIEnabled   *bool  `json:"uiEnabled,omitempty"`
 	MinReplica *int32 `json:"minReplica,omitempty"`
 	Name       string `json:"name"`
+	LastUpdate *int64 `json:"lastUpdate,omitempty"`
 }
 
 type EnvManagerStatus struct {
@@ -58,8 +60,8 @@ func (in *EnvManager) DeepCopy() *EnvManager {
 func (in *EnvManagerSpec) DeepCopyInto(out *EnvManagerSpec) {
 	*out = *in
 
-	if in.Enable != nil {
-		in, out := &in.Enable, &out.Enable
+	if in.Enabled != nil {
+		in, out := &in.Enabled, &out.Enabled
 		*out = new(bool)
 		*out = *in
 	}
@@ -67,6 +69,18 @@ func (in *EnvManagerSpec) DeepCopyInto(out *EnvManagerSpec) {
 	if in.MinReplica != nil {
 		in, out := &in.MinReplica, &out.MinReplica
 		*out = new(int32)
+		*out = *in
+	}
+
+	if in.UIEnabled != nil {
+		in, out := &in.UIEnabled, &out.UIEnabled
+		*out = new(bool)
+		*out = *in
+	}
+
+	if in.LastUpdate != nil {
+		in, out := &in.LastUpdate, &out.LastUpdate
+		*out = new(int64)
 		*out = *in
 	}
 
