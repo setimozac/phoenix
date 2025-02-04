@@ -55,7 +55,13 @@ func (r *EnvManagerReconciler) Reconcile(ctx context.Context, req ctl.Request) (
 	log.V(1).Info("testing the deployment get function", "deployment", deployment)
 
 	log.V(1).Info("<------ Updating the deployment ----->")
-	desiredReplicas := int32(*envManager.Spec.MinReplica)
+	var desiredReplicas int32
+	if !*envManager.Spec.UIEnabled {
+		desiredReplicas = int32(*envManager.Spec.MinReplica)
+	} else {
+		desiredReplicas = 0
+	}
+	
 	if deployment.Spec.Replicas != nil && deployment.Spec.Replicas == &desiredReplicas {
 		log.V(1).Info("The deployment replicas matches the CR", "deployment.repicas:", deployment.Spec.Replicas, "CR.MinReplica", desiredReplicas)
 		return ctl.Result{}, nil
