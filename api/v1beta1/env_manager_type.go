@@ -11,6 +11,7 @@ type EnvManagerSpec struct {
 	MinReplica *int32 `json:"minReplica,omitempty"`
 	Name       string `json:"name"`
 	LastUpdate *int64 `json:"lastUpdate,omitempty"`
+	Events *[]string `json:"events"`
 }
 
 type EnvManagerStatus struct {
@@ -82,6 +83,14 @@ func (in *EnvManagerSpec) DeepCopyInto(out *EnvManagerSpec) {
 		in, out := &in.LastUpdate, &out.LastUpdate
 		*out = new(int64)
 		*out = *in
+	}
+
+	if in.Events != nil {
+		in, out := &in.Events, &out.Events
+		outSlice := make([]string, len(**in))
+		copy(outSlice, **in)
+		*out = &outSlice
+		
 	}
 
 }
